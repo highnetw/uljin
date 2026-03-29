@@ -17,7 +17,6 @@ export default function PinGuard({ children }: { children: React.ReactNode }) {
   }, [])
 
   const handleSubmit = () => {
-    console.log('입력값:', input, '길이:', input.length)
     if (input.trim() === PIN) {
       sessionStorage.setItem('ulj_pin', PIN)
       setUnlocked(true)
@@ -32,30 +31,37 @@ export default function PinGuard({ children }: { children: React.ReactNode }) {
   if (unlocked) return <>{children}</>
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-80 text-center">
-        <h1 className="text-2xl font-bold mb-2">울진 모임</h1>
-        <p className="text-gray-500 text-sm mb-6">PIN 번호를 입력하세요</p>
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* 상단 이미지 */}
+      <div
+        className="w-full h-64 bg-cover bg-center"
+        style={{ backgroundImage: "url('/bg.jpg')" }}
+      />
+
+      {/* 하단 PIN 입력 */}
+      <div className="flex-1 flex flex-col items-center justify-center px-8 py-10">
+        <h1 className="text-2xl font-bold text-gray-800 mb-1">울진 모임</h1>
+        <p className="text-gray-400 text-sm mb-8">PIN 번호를 입력하세요</p>
+
         <input
           type="text"
           inputMode="numeric"
           maxLength={4}
           value={input}
-          onChange={e => {
-            const val = e.target.value.replace(/[^0-9]/g, '')
-            setInput(val)
-          }}
+          onChange={e => setInput(e.target.value.replace(/[^0-9]/g, ''))}
           onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-          className="w-full text-center text-2xl tracking-widest border-2 rounded-xl p-3 mb-3 focus:outline-none focus:border-blue-400"
+          className="w-full max-w-xs text-center text-3xl tracking-widest border-2 rounded-xl p-3 mb-3 focus:outline-none focus:border-blue-400"
           placeholder="0000"
           autoFocus
         />
+
         {error && (
           <p className="text-red-500 text-sm mb-3">PIN이 올바르지 않습니다</p>
         )}
+
         <button
           onClick={handleSubmit}
-          className="w-full bg-blue-500 text-white py-3 rounded-xl font-semibold hover:bg-blue-600 transition"
+          className="w-full max-w-xs bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
         >
           입장
         </button>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 
 type Member = {
   id: string
@@ -10,12 +10,21 @@ type Member = {
   gender: string | null
 }
 
-export default function NewMeeting() {
+type ExistingPhoto = {
+  id: string
+  url: string
+  type: string
+  order_index: number
+}
+
+export default function EditMeeting() {
   const router = useRouter()
+  const { id } = useParams()
   const [members, setMembers] = useState<Member[]>([])
   const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+  const [date, setDate] = useState('')
   const [title, setTitle] = useState('')
   const [location, setLocation] = useState('')
   const [content, setContent] = useState('')
@@ -23,7 +32,8 @@ export default function NewMeeting() {
   const [foodReview, setFoodReview] = useState('')
   const [totalCost, setTotalCost] = useState('')
   const [attendees, setAttendees] = useState<string[]>([])
-  const [moments, setMoments] = useState<{ memberId: string; content: string }[]>([{ memberId: '', content: '' }])
+  const [moments, setMoments] = useState<{ memberId: string; content: string }[]>([])
+  const [existingPhotos, setExistingPhotos] = useState<ExistingPhoto[]>([])
 
   const [foodPhotos, setFoodPhotos] = useState<File[]>([])
   const [restaurantPhotos, setRestaurantPhotos] = useState<File[]>([])
@@ -33,20 +43,61 @@ export default function NewMeeting() {
   const [peoplePreviews, setPeoplePreviews] = useState<string[]>([])
 
   useEffect(() => {
-    const fetchMembers = async () => {
-      const { data } = await supabase
+    const fetchAll = async () => {
+      const { data: members } = await supabase
         .from('ulj_members')
         .select('id, name, gender')
         .eq('active', true)
         .eq('is_deceased', false)
         .order('name')
-      setMembers(data || [])
-    }
-    fetchMembers()
-  }, [])
+      setMembers(members || [])
 
-  const toggleAttendee = (id: string) => {
-    setAttendees(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+      const { data: meeting } = await supabase
+        .from('ulj_meetings')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (meeting) {
+        setTitle(meeting.title)
+        setDate(meeting.meeting_date)
+        setLocation(meeting.location || '')
+        setContent(meeting.content || '')
+        setFoodName(meeting.food_name || '')
+        setFoodReview(meeting.food_review || '')
+        setTotalCost(meeting.total_cost?.toString() || '')
+      }
+
+      const { data: att } = await supabase
+        .from('ulj_attendees')
+        .select('member_id')
+        .eq('meeting_id', id)
+      setAttendees((att || []).map((a: any) => a.member_id))
+
+      const { data: photos } = await supabase
+        .from('ulj_photos')
+        .select('*')
+        .eq('meeting_id', id)
+        .order('order_index')
+      setExistingPhotos(photos || [])
+
+      const { data: mom } = await supabase
+        .from('ulj_moments')
+        .select('content, member_id')
+        .eq('meeting_id', id)
+      setMoments(
+        (mom || []).length > 0
+          ? (mom || []).map((m: any) => ({ memberId: m.member_id, content: m.content }))
+          : [{ memberId: '', content: '' }]
+      )
+
+      setLoading(false)
+    }
+    fetchAll()
+  }, [id])
+
+  const toggleAttendee = (mid: string) => {
+    setAttendees(prev => prev.includes(mid) ? prev.filter(x => x !== mid) : [...prev, mid])
   }
 
   const addMoment = () => setMoments(prev => [...prev, { memberId: '', content: '' }])
@@ -79,7 +130,15 @@ export default function NewMeeting() {
     e.target.value = ''
   }
 
-  const uploadPhotos = async (meetingId: string) => {
+  const deleteExistingPhoto = async (photo: ExistingPhoto) => {
+    if (!confirm('이 사진을 삭제할까요?')) return
+    const path = photo.url.split('/uljin-photos/')[1]
+    if (path) await supabase.storage.from('uljin-photos').remove([path])
+    await supabase.from('ulj_photos').delete().eq('id', photo.id)
+    setExistingPhotos(prev => prev.filter(p => p.id !== photo.id))
+  }
+
+  const uploadPhotos = async () => {
     const allPhotos = [
       ...foodPhotos.map(f => ({ file: f, type: 'food' })),
       ...restaurantPhotos.map(f => ({ file: f, type: 'restaurant' })),
@@ -88,12 +147,12 @@ export default function NewMeeting() {
     for (let i = 0; i < allPhotos.length; i++) {
       const { file, type } = allPhotos[i]
       const ext = file.name.split('.').pop()
-      const path = `${meetingId}/${type}_${Date.now()}_${i}.${ext}`
+      const path = `${id}/${type}_${Date.now()}_${i}.${ext}`
       const { error } = await supabase.storage.from('uljin-photos').upload(path, file)
       if (!error) {
         const { data: urlData } = supabase.storage.from('uljin-photos').getPublicUrl(path)
         await supabase.from('ulj_photos').insert({
-          meeting_id: meetingId,
+          meeting_id: id,
           url: urlData.publicUrl,
           type,
           order_index: i,
@@ -106,47 +165,51 @@ export default function NewMeeting() {
     if (!title || !date) { alert('제목과 날짜는 필수입니다'); return }
     setSaving(true)
 
-    const { data: meeting, error } = await supabase
-      .from('ulj_meetings')
-      .insert({
-        title,
-        meeting_date: date,
-        location: location || null,
-        content: content || null,
-        food_name: foodName || null,
-        food_review: foodReview || null,
-        total_cost: totalCost ? parseInt(totalCost) : null,
-      })
-      .select()
-      .single()
+    await supabase.from('ulj_meetings').update({
+      title,
+      meeting_date: date,
+      location: location || null,
+      content: content || null,
+      food_name: foodName || null,
+      food_review: foodReview || null,
+      total_cost: totalCost ? parseInt(totalCost) : null,
+    }).eq('id', id)
 
-    if (error || !meeting) { alert('저장 실패'); setSaving(false); return }
-
+    await supabase.from('ulj_attendees').delete().eq('meeting_id', id)
     if (attendees.length > 0) {
       await supabase.from('ulj_attendees').insert(
-        attendees.map(member_id => ({ meeting_id: meeting.id, member_id }))
+        attendees.map(member_id => ({ meeting_id: id, member_id }))
       )
     }
 
-    await uploadPhotos(meeting.id)
-
+    await supabase.from('ulj_moments').delete().eq('meeting_id', id)
     const validMoments = moments.filter(m => m.memberId && m.content.trim())
     if (validMoments.length > 0) {
       await supabase.from('ulj_moments').insert(
-        validMoments.map(m => ({ meeting_id: meeting.id, member_id: m.memberId, content: m.content.trim() }))
+        validMoments.map(m => ({ meeting_id: id, member_id: m.memberId, content: m.content.trim() }))
       )
     }
+
+    await uploadPhotos()
 
     router.push('/')
   }
 
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <p className="text-gray-400">불러오는 중...</p>
+    </div>
+  )
+
+  const exFoodPhotos = existingPhotos.filter(p => p.type === 'food')
+  const exRestaurantPhotos = existingPhotos.filter(p => p.type === 'restaurant')
+  const exPeoplePhotos = existingPhotos.filter(p => p.type === 'people')
+
   return (
     <main className="min-h-screen bg-slate-50">
-      <header className="bg-blue-900 text-white px-4 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-blue-300 text-sm">← 뒤로</button>
-          <h1 className="text-xl font-bold">📋 새 모임 기록</h1>
-        </div>
+      <header className="bg-blue-900 text-white px-4 py-5 flex items-center gap-3">
+        <button onClick={() => router.back()} className="text-blue-300 text-sm">← 뒤로</button>
+        <h1 className="text-xl font-bold">✏️ 모임 수정</h1>
       </header>
 
       <div className="max-w-lg mx-auto p-4 space-y-4">
@@ -155,7 +218,6 @@ export default function NewMeeting() {
         <div>
           <label className="block text-xs font-medium text-blue-700 mb-1">📌 모임 제목 *</label>
           <input type="text" value={title} onChange={e => setTitle(e.target.value)}
-            placeholder="예: 2026년 1월 정기모임"
             className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500" />
         </div>
 
@@ -170,15 +232,13 @@ export default function NewMeeting() {
         <div>
           <label className="block text-xs font-medium text-blue-700 mb-1">📍 장소</label>
           <input type="text" value={location} onChange={e => setLocation(e.target.value)}
-            placeholder="예: 서울 강남구"
             className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500" />
         </div>
 
         {/* 내용 */}
         <div>
           <label className="block text-xs font-medium text-blue-700 mb-1">📝 모임 내용</label>
-          <textarea value={content} onChange={e => setContent(e.target.value)}
-            placeholder="모임 내용을 자유롭게..." rows={3}
+          <textarea value={content} onChange={e => setContent(e.target.value)} rows={3}
             className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500 resize-none" />
         </div>
 
@@ -197,7 +257,6 @@ export default function NewMeeting() {
         <div>
           <label className="block text-xs font-medium text-blue-700 mb-1">💰 전체 비용</label>
           <input type="number" value={totalCost} onChange={e => setTotalCost(e.target.value)}
-            placeholder="예: 150000"
             className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500" />
         </div>
 
@@ -220,9 +279,34 @@ export default function NewMeeting() {
           </div>
         </div>
 
-        {/* 음식 사진 */}
+        {/* 기존 사진 관리 */}
+        {existingPhotos.length > 0 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+            <div className="text-xs font-medium text-amber-700 mb-2">🗂 저장된 사진 (✕ 버튼으로 삭제)</div>
+            {[
+              { list: exFoodPhotos, label: '📷 음식' },
+              { list: exRestaurantPhotos, label: '🏪 식당 외관' },
+              { list: exPeoplePhotos, label: '🤳 단체' },
+            ].filter(g => g.list.length > 0).map(g => (
+              <div key={g.label} className="mb-2">
+                <div className="text-xs text-slate-500 mb-1">{g.label}</div>
+                <div className="grid grid-cols-3 gap-2">
+                  {g.list.map((p, i) => (
+                    <div key={i} className="relative">
+                      <img src={p.url} className="w-full aspect-square object-cover rounded-lg" />
+                      <button onClick={() => deleteExistingPhoto(p)}
+                        className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">✕</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* 음식 사진 추가 */}
         <div>
-          <label className="block text-xs font-medium text-blue-700 mb-2">📷 음식 사진</label>
+          <label className="block text-xs font-medium text-blue-700 mb-2">📷 음식 사진 추가</label>
           <label className="block w-full border-2 border-dashed border-slate-300 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 transition">
             <span className="text-slate-400 text-sm">📷 갤러리에서 선택</span>
             <input type="file" accept="image/*" multiple className="hidden"
@@ -230,16 +314,14 @@ export default function NewMeeting() {
           </label>
           {foodPreviews.length > 0 && (
             <div className="grid grid-cols-3 gap-2 mt-2">
-              {foodPreviews.map((src, i) => (
-                <img key={i} src={src} className="w-full aspect-square object-cover rounded-lg" />
-              ))}
+              {foodPreviews.map((src, i) => <img key={i} src={src} className="w-full aspect-square object-cover rounded-lg" />)}
             </div>
           )}
         </div>
 
-        {/* 식당 외관 사진 */}
+        {/* 식당 외관 사진 추가 */}
         <div>
-          <label className="block text-xs font-medium text-blue-700 mb-2">🏪 식당 외관 사진</label>
+          <label className="block text-xs font-medium text-blue-700 mb-2">🏪 식당 외관 사진 추가</label>
           <label className="block w-full border-2 border-dashed border-slate-300 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 transition">
             <span className="text-slate-400 text-sm">📷 갤러리에서 선택</span>
             <input type="file" accept="image/*" multiple className="hidden"
@@ -247,16 +329,14 @@ export default function NewMeeting() {
           </label>
           {restaurantPreviews.length > 0 && (
             <div className="grid grid-cols-3 gap-2 mt-2">
-              {restaurantPreviews.map((src, i) => (
-                <img key={i} src={src} className="w-full aspect-square object-cover rounded-lg" />
-              ))}
+              {restaurantPreviews.map((src, i) => <img key={i} src={src} className="w-full aspect-square object-cover rounded-lg" />)}
             </div>
           )}
         </div>
 
-        {/* 단체 사진 */}
+        {/* 단체 사진 추가 */}
         <div>
-          <label className="block text-xs font-medium text-blue-700 mb-2">🤳 단체 사진</label>
+          <label className="block text-xs font-medium text-blue-700 mb-2">🤳 단체 사진 추가</label>
           <label className="block w-full border-2 border-dashed border-slate-300 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 transition">
             <span className="text-slate-400 text-sm">📷 갤러리에서 선택</span>
             <input type="file" accept="image/*" multiple className="hidden"
@@ -264,18 +344,14 @@ export default function NewMeeting() {
           </label>
           {peoplePreviews.length > 0 && (
             <div className="grid grid-cols-3 gap-2 mt-2">
-              {peoplePreviews.map((src, i) => (
-                <img key={i} src={src} className="w-full aspect-square object-cover rounded-lg" />
-              ))}
+              {peoplePreviews.map((src, i) => <img key={i} src={src} className="w-full aspect-square object-cover rounded-lg" />)}
             </div>
           )}
         </div>
 
         {/* 명언 */}
         <div>
-          <label className="block text-xs font-medium text-blue-700 mb-2">
-            💬 오늘의 명언
-          </label>
+          <label className="block text-xs font-medium text-blue-700 mb-2">💬 오늘의 명언</label>
           {moments.map((m, i) => (
             <div key={i} className="mb-3 border border-slate-200 rounded-xl p-3 bg-slate-50">
               <div className="flex justify-between items-center mb-2">
@@ -303,7 +379,7 @@ export default function NewMeeting() {
         {/* 저장 */}
         <button onClick={handleSave} disabled={saving}
           className="w-full bg-blue-800 text-white py-3 rounded-xl font-bold text-base hover:bg-blue-700 disabled:opacity-50 mb-8">
-          {saving ? '저장 중...' : '✨ 기록 저장'}
+          {saving ? '저장 중...' : '✨ 수정 저장'}
         </button>
 
       </div>
