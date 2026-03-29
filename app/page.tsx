@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { linkify } from '@/lib/linkify'
 
 type Meeting = {
   id: string
@@ -192,7 +193,7 @@ function MeetingCard({ meeting: m, formatDate, onDeleted }: {
             {m.ulj_moments.map((moment: any, i: number) => (
               <div key={i} className="bg-amber-50 border-l-4 border-amber-400 rounded-r-xl px-3 py-2">
                 <div className="text-xs font-bold text-amber-700 mb-1">{moment.ulj_members?.name}</div>
-                <div className="text-sm text-slate-600">{moment.content}</div>
+                <div className="text-sm text-slate-600">{linkify(moment.content)}</div>
               </div>
             ))}
           </div>
