@@ -1,23 +1,28 @@
+'use client'
+
 import React from 'react'
 
-export function linkify(text: string) {
+export function linkify(text: string): React.ReactNode[] {
   const urlRegex = /(https?:\/\/[^\s]+)/g
   const parts = text.split(urlRegex)
-  return parts.map((part, i) => {
-    if (urlRegex.test(part)) {
-      return (
-        
-          key={i}
-          href={part}
-          target="_blank"
-          rel="noreferrer"
-          className="text-blue-500 underline break-all"
-          onClick={e => e.stopPropagation()}
-        >
-          {part}
-        </a>
+  const result: React.ReactNode[] = []
+
+  parts.forEach((part, i) => {
+    if (part.match(urlRegex)) {
+      result.push(
+        React.createElement('a', {
+          key: i,
+          href: part,
+          target: '_blank',
+          rel: 'noreferrer',
+          className: 'text-blue-500 underline break-all',
+          onClick: (e: React.MouseEvent) => e.stopPropagation(),
+        }, part)
       )
+    } else {
+      result.push(React.createElement('span', { key: i }, part))
     }
-    return <span key={i}>{part}</span>
   })
+
+  return result
 }
