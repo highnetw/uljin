@@ -35,7 +35,7 @@ export default function PinGuard({ children }: { children: React.ReactNode }) {
       {/* 상단 이미지 */}
       <div
         className="w-full h-64 bg-cover bg-center"
-        style={{ backgroundImage: "url('/bg.jpg')" }}
+        style={{ backgroundImage: "url('/bg.png')" }}
       />
 
       {/* 하단 PIN 입력 */}

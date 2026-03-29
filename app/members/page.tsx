@@ -120,7 +120,7 @@ export default function Members() {
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-gray-400 text-xl">←</button>
+          <button onClick={() => router.push('/')} className="text-blue-300 text-sm">← 홈</button>
           <h1 className="text-xl font-bold">멤버 관리</h1>
         </div>
         <button
