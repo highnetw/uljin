@@ -123,7 +123,7 @@ function MeetingCard({ meeting: m, formatDate, onDeleted }: {
           </div>
         )}
         {m.content && (
-          <p className="text-sm text-slate-500">{m.content}</p>
+          <p className="text-sm text-slate-500 whitespace-pre-wrap">{m.content}</p>
         )}
         {m.food_name && (
           <div className="flex gap-2">
