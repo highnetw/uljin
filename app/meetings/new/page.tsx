@@ -195,7 +195,7 @@ export default function NewMeeting() {
 
         {/* 비용 */}
         <div>
-          <label className="block text-xs font-medium text-blue-700 mb-1">💰 전체 비용</label>
+          <label className="block text-xs font-medium text-blue-700 mb-1">💰 비용</label>
           <input type="number" value={totalCost} onChange={e => setTotalCost(e.target.value)}
             placeholder="예: 150000"
             className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500" />

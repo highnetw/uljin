@@ -139,7 +139,7 @@ function MeetingCard({ meeting: m, formatDate, onDeleted }: {
           <div className="flex gap-2 items-center">
             <span>💰</span>
             <div>
-              <div className="text-xs text-blue-700 font-medium">전체 비용</div>
+              <div className="text-xs text-blue-700 font-medium">비용</div>
               <div className="font-bold text-sm">{m.total_cost.toLocaleString()}원</div>
             </div>
           </div>
