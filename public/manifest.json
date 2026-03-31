@@ -1,7 +1,7 @@
 {
-  "name": "울진 모임",
-  "short_name": "울진",
-  "description": "울진 친목 모임",
+  "name": "망양 모임",
+  "short_name": "망양",
+  "description": "망양 응달기와집 모임",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

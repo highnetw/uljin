@@ -40,12 +40,13 @@ export default function PinGuard({ children }: { children: React.ReactNode }) {
             {/* 이미지 설명 */}
             <div className="px-6 pt-4 pb-2 text-center">
                 <p className="text-gray-700 font-medium text-base">평화로운 고향 망양 앞바다^^</p>
-                <p className="text-gray-400 text-sm mt-1">이 동산에 원래 망양정이 있었다고 합니다.</p>
+                <p className="text-gray-400 text-sm mt-1">망양 응달 기와집(응달재집) 후손들입니다.</p>
+                <p className="text-gray-400 text-sm mt-1">망양정이 최초에 이 동산에 있었다 합니다.</p>
             </div>
 
             {/* 하단 PIN 입력 */}
             <div className="flex-1 flex flex-col items-center justify-center px-8 py-10">
-                <h1 className="text-2xl font-bold text-gray-800 mb-1">울진 모임</h1>
+                <h1 className="text-2xl font-bold text-gray-800 mb-1">망양 모임</h1>
                 <p className="text-gray-400 text-sm mb-8">PIN 번호를 입력하세요</p>
 
                 <input

@@ -6,14 +6,14 @@ import PinGuard from '@/components/PinGuard'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: '울진 모임',
-  description: '울진 친목 모임',
+  title: '망양 모임',
+  description: '망양 친목 모임',
   manifest: '/manifest.json',
   themeColor: '#3b82f6',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: '울진 모임',
+    title: '망양 모임',
   },
 }
 

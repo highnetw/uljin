@@ -50,7 +50,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-slate-50">
       <header className="bg-blue-900 text-white px-4 py-5 flex items-center justify-between">
-        <h1 className="text-xl font-bold">🏔 울진 모임</h1>
+        <h1 className="text-xl font-bold">🏔 망양 모임</h1>
         <div className="flex gap-2">
           <Link href="/members" className="bg-blue-700 text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-600">
             👥 멤버
