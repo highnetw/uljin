@@ -120,12 +120,12 @@ export default function Members() {
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/')} className="text-blue-300 text-sm">← 홈</button>
+          <button onClick={() => router.push('/')} className="text-blue-300 text-base">← 홈</button>
           <h1 className="text-xl font-bold">멤버 관리</h1>
         </div>
         <button
           onClick={openNew}
-          className="bg-blue-500 text-white text-sm px-3 py-1.5 rounded-lg hover:bg-blue-600"
+          className="bg-blue-500 text-white text-base px-3 py-1.5 rounded-lg hover:bg-blue-600"
         >
           + 멤버 추가
         </button>
@@ -151,11 +151,11 @@ export default function Members() {
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="font-medium">{m.name}</span>
-                {m.is_deceased && <span className="text-xs text-gray-400">고인</span>}
-                {!m.active && <span className="text-xs text-red-400">비활성</span>}
+                {m.is_deceased && <span className="text-sm text-gray-400">고인</span>}
+                {!m.active && <span className="text-sm text-red-400">비활성</span>}
               </div>
-              {m.birth_year && <p className="text-sm text-gray-400">{m.birth_year}년생</p>}
-              {m.spouse_name && <p className="text-sm text-gray-400">배우자: {m.spouse_name}</p>}
+              {m.birth_year && <p className="text-base text-gray-400">{m.birth_year}년생</p>}
+              {m.spouse_name && <p className="text-base text-gray-400">배우자: {m.spouse_name}</p>}
             </div>
           </div>
         ))}
@@ -180,7 +180,7 @@ export default function Members() {
                     <span className="text-3xl">{form.gender === '여' ? '👩' : '👨'}</span>
                   )}
                 </div>
-                <p className="text-xs text-center text-blue-500 mt-1">
+                <p className="text-sm text-center text-blue-500 mt-1">
                   {uploading ? '업로드 중...' : '사진 선택'}
                 </p>
                 <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
@@ -190,7 +190,7 @@ export default function Members() {
             <div className="flex flex-col gap-3">
               {/* 이름 */}
               <div>
-                <label className="text-sm text-gray-500">이름 *</label>
+                <label className="text-base text-gray-500">이름 *</label>
                 <input
                   type="text"
                   value={form.name}
@@ -201,13 +201,13 @@ export default function Members() {
 
               {/* 성별 */}
               <div>
-                <label className="text-sm text-gray-500">성별</label>
+                <label className="text-base text-gray-500">성별</label>
                 <div className="flex gap-2 mt-1">
                   {['남', '여'].map(g => (
                     <button
                       key={g}
                       onClick={() => setForm({ ...form, gender: g })}
-                      className={`flex-1 py-2 rounded-xl border text-sm font-medium transition ${
+                      className={`flex-1 py-2 rounded-xl border text-base font-medium transition ${
                         form.gender === g ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700'
                       }`}
                     >
@@ -219,7 +219,7 @@ export default function Members() {
 
               {/* 생년 */}
               <div>
-                <label className="text-sm text-gray-500">생년</label>
+                <label className="text-base text-gray-500">생년</label>
                 <input
                   type="number"
                   value={form.birth_year}
@@ -231,7 +231,7 @@ export default function Members() {
 
               {/* 생일 */}
               <div>
-                <label className="text-sm text-gray-500">생일</label>
+                <label className="text-base text-gray-500">생일</label>
                 <input
                   type="date"
                   value={form.birth_date}
@@ -242,7 +242,7 @@ export default function Members() {
 
               {/* 배우자 */}
               <div>
-                <label className="text-sm text-gray-500">배우자 이름</label>
+                <label className="text-base text-gray-500">배우자 이름</label>
                 <input
                   type="text"
                   value={form.spouse_name}
@@ -253,7 +253,7 @@ export default function Members() {
 
               {/* 결혼기념일 */}
               <div>
-                <label className="text-sm text-gray-500">결혼기념일</label>
+                <label className="text-base text-gray-500">결혼기념일</label>
                 <input
                   type="date"
                   value={form.anniversary}
@@ -264,7 +264,7 @@ export default function Members() {
 
               {/* 메모 */}
               <div>
-                <label className="text-sm text-gray-500">메모</label>
+                <label className="text-base text-gray-500">메모</label>
                 <textarea
                   value={form.note}
                   onChange={e => setForm({ ...form, note: e.target.value })}
@@ -281,7 +281,7 @@ export default function Members() {
                     onChange={e => setForm({ ...form, is_deceased: e.target.checked })}
                     className="w-4 h-4"
                   />
-                  <span className="text-sm text-gray-600">고인</span>
+                  <span className="text-base text-gray-600">고인</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -290,7 +290,7 @@ export default function Members() {
                     onChange={e => setForm({ ...form, active: e.target.checked })}
                     className="w-4 h-4"
                   />
-                  <span className="text-sm text-gray-600">활성</span>
+                  <span className="text-base text-gray-600">활성</span>
                 </label>
               </div>
 

@@ -89,12 +89,12 @@ export default function MeetingDetail() {
         <main className="min-h-screen bg-slate-50">
             <header className="bg-blue-900 text-white px-4 py-5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <button onClick={() => router.back()} className="text-blue-300 text-sm">← 뒤로</button>
+                    <button onClick={() => router.back()} className="text-blue-300 text-base">← 뒤로</button>
                     <h1 className="text-xl font-bold">{meeting.title}</h1>
                 </div>
                 <button
                     onClick={() => router.push(`/meetings/${id}/edit`)}
-                    className="bg-blue-700 text-white text-sm px-3 py-1.5 rounded-lg hover:bg-blue-600"
+                    className="bg-blue-700 text-white text-base px-3 py-1.5 rounded-lg hover:bg-blue-600"
                 >
                     ✏️ 수정
                 </button>
@@ -104,23 +104,23 @@ export default function MeetingDetail() {
 
                 {/* 기본 정보 */}
                 <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-2">
-                    <p className="text-sm text-slate-500">📅 {meeting.meeting_date}</p>
+                    <p className="text-base text-slate-500">📅 {meeting.meeting_date}</p>
                     {meeting.location && (
-                        <p className="text-sm text-slate-500">📍 {meeting.location}</p>
+                        <p className="text-base text-slate-500">📍 {meeting.location}</p>
                     )}
                     {meeting.content && (
-                        <p className="text-slate-700 text-sm whitespace-pre-wrap">{meeting.content}</p>
+                        <p className="text-slate-700 text-base whitespace-pre-wrap">{meeting.content}</p>
                     )}
                     {meeting.food_name && (
                         <div>
-                            <p className="text-sm font-medium text-blue-700">🍽 {meeting.food_name}</p>
+                            <p className="text-base font-medium text-blue-700">🍽 {meeting.food_name}</p>
                             {meeting.food_review && (
-                                <p className="text-xs text-slate-500 mt-0.5">{meeting.food_review}</p>
+                                <p className="text-sm text-slate-500 mt-0.5">{meeting.food_review}</p>
                             )}
                         </div>
                     )}
                     {meeting.total_cost && (
-                        <p className="text-sm font-bold text-slate-700">
+                        <p className="text-base font-bold text-slate-700">
                             💰 {meeting.total_cost.toLocaleString()}원
                         </p>
                     )}
@@ -128,10 +128,10 @@ export default function MeetingDetail() {
 
                 {/* 참석자 */}
                 <div className="bg-white rounded-2xl p-4 border border-slate-200">
-                    <h2 className="font-semibold mb-2 text-sm text-blue-700">👥 참석자 {attendees.length}명</h2>
+                    <h2 className="font-semibold mb-2 text-base text-blue-700">👥 참석자 {attendees.length}명</h2>
                     <div className="flex flex-wrap gap-2">
                         {attendees.map(m => (
-                            <span key={m.id} className="bg-blue-50 text-blue-700 text-sm px-3 py-1 rounded-full">
+                            <span key={m.id} className="bg-blue-50 text-blue-700 text-base px-3 py-1 rounded-full">
                                 {m.gender === '여' ? '👩' : '👨'} {m.name}
                             </span>
                         ))}
@@ -143,7 +143,7 @@ export default function MeetingDetail() {
                     <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
                         {foodPhotos.length > 0 && (
                             <div>
-                                <p className="text-xs text-blue-700 font-medium mb-1">📷 음식 사진</p>
+                                <p className="text-sm text-blue-700 font-medium mb-1">📷 음식 사진</p>
                                 <div className="grid grid-cols-3 gap-1">
                                     {foodPhotos.map(p => (
                                         <img key={p.id} src={p.url} onClick={() => setLightbox(p.url)}
@@ -154,7 +154,7 @@ export default function MeetingDetail() {
                         )}
                         {restaurantPhotos.length > 0 && (
                             <div>
-                                <p className="text-xs text-blue-700 font-medium mb-1">🏪 식당 외관</p>
+                                <p className="text-sm text-blue-700 font-medium mb-1">🏪 식당 외관</p>
                                 <div className="grid grid-cols-3 gap-1">
                                     {restaurantPhotos.map(p => (
                                         <img key={p.id} src={p.url} onClick={() => setLightbox(p.url)}
@@ -165,7 +165,7 @@ export default function MeetingDetail() {
                         )}
                         {peoplePhotos.length > 0 && (
                             <div>
-                                <p className="text-xs text-blue-700 font-medium mb-1">🤳 단체 사진</p>
+                                <p className="text-sm text-blue-700 font-medium mb-1">🤳 단체 사진</p>
                                 <div className="grid grid-cols-3 gap-1">
                                     {peoplePhotos.map(p => (
                                         <img key={p.id} src={p.url} onClick={() => setLightbox(p.url)}
@@ -180,12 +180,12 @@ export default function MeetingDetail() {
                 {/* 명언 */}
                 {moments.length > 0 && (
                     <div className="bg-white rounded-2xl p-4 border border-slate-200">
-                        <p className="text-xs text-blue-700 font-medium mb-2">💬 오늘의 명언</p>
+                        <p className="text-sm text-blue-700 font-medium mb-2">💬 오늘의 명언</p>
                         <div className="space-y-2">
                             {moments.map((m, i) => (
                                 <div key={i} className="bg-amber-50 border-l-4 border-amber-400 rounded-r-xl px-3 py-2">
-                                    <p className="text-xs font-bold text-amber-700 mb-1">{m.ulj_members?.name}</p>
-                                    <p className="text-sm text-slate-600">{linkify(m.content)}</p>
+                                    <p className="text-sm font-bold text-amber-700 mb-1">{m.ulj_members?.name}</p>
+                                    <p className="text-base text-slate-600">{linkify(m.content)}</p>
                                 </div>
                             ))}
                         </div>
