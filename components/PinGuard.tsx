@@ -40,7 +40,7 @@ export default function PinGuard({ children }: { children: React.ReactNode }) {
             {/* 이미지 설명 */}
             <div className="px-6 pt-4 pb-2 text-center">
                 <p className="text-gray-700 font-medium text-base">평화로운 고향 망양 앞바다^^</p>
-                <p className="text-gray-400 text-sm mt-1">망양 응달 기와집(응달재집) 후손들입니다.</p>
+                <p className="text-gray-400 text-sm mt-1">망양 응달기와집(응달재집) 후손들입니다.</p>
                 <p className="text-gray-400 text-sm mt-1">망양정이 최초에 이 동산에 있었다 합니다.</p>
             </div>
 
